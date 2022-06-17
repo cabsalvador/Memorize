@@ -8,51 +8,74 @@
 import SwiftUI
 
 struct ContentView: View {
-    var emojis = ["🏎", "🚐", "🚛", "🛵", "🚚", "🚎", "🚁", "🛶", "⛴", "✈️", "🚀"]
-    @State var emojiCount = 6
-    
+
+    let emojis = [
+        ["🏎", "🚐", "🚛", "🛵", "🚚", "🚎", "🚁", "🛶", "⛴", "✈️", "🚀"],
+        ["😀", "😅", "🤣", "😍", "😝", "🤓", "🥸", "🥳", "😏", "☹️", "😩", "🥺", "😭", "😤", "🤬", "🤯", "😳", "🥵", "🥶", "😶‍🌫️", "🫡"],
+        ["⌚️", "📱", "💻", "⌨️", "🖥", "🖨", "🖱", "🕹", "💽", "💾", "📼", "📷", "🎥", "📺", "📡"]
+    ]
+    @State var emojiCount = 11
+    @State private  var theme = Theme.vehicles
     var body: some View {
         VStack {
+            Text("Memorize")
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 70))]) {
-                    ForEach(emojis[0..<emojiCount], id: \.self) { emoji in
+                    ForEach(emojis[theme.value][0..<emojiCount].shuffled(), id: \.self) { emoji in
                         CardView(content: emoji)
                             .aspectRatio(2/3, contentMode: .fit)
                     }
                 }
                 .foregroundColor(.red)
             }
-            HStack {
-                remove
-                Spacer()
-                add
+            HStack(spacing: 50) {
+                ForEach(Theme.allCases, id: \.self) { theme in
+                    Button {
+                        self.theme = theme
+                        emojiCount = Int.random(in: 0..<emojis[theme.value].count - 1)
+                    } label: {
+                        VStack {
+                            Image(systemName: theme.sfSymbol)
+                            Text(theme.name)
+                                .font(.caption)
+                        }
+                    }
+                }
             }
-            .padding(.horizontal)
             .font(.largeTitle)
         }
         .padding(.horizontal)
-
     }
     
-    var remove: some View {
-        Button {
-            if emojiCount > 1 {
-                emojiCount -= 1
-            }
-        } label: {
-            Image(systemName: "minus.circle.fill")
-                .symbolRenderingMode(.hierarchical)
+    private enum Theme: String, CaseIterable {
+        case vehicles
+        case faces
+        case tech
+        
+        var name: String {
+            self.rawValue.capitalized
         }
-    }
-    
-    var add: some View {
-        Button {
-            if emojiCount < emojis.count {
-                emojiCount += 1
+        
+        var value: Int {
+            switch self {
+            case .vehicles:
+                return 0
+            case .faces:
+                return 1
+            case .tech:
+                return 2
             }
-        } label: {
-            Image(systemName: "plus.circle.fill")
-                .symbolRenderingMode(.hierarchical)
+        }
+        
+        var sfSymbol: String {
+            switch self {
+            case .vehicles:
+                return "car.fill"
+            case .faces:
+                return "face.smiling.fill"
+            case .tech:
+                return "iphone"
+            }
         }
     }
 }
